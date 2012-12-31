@@ -1,0 +1,69 @@
+================================
+StarUML ColdFusion CFC Generator
+================================
+
+INSTALLATION
+
+Generates ColdFusion component files from your StarUML class diagrams.
+You'll need the StarUML software in order to use this.  You can download
+StarUML from the project website:
+
+http://http://staruml.sourceforge.net/
+
+Once you've got StarUML installed, dig into the StarUML installation 
+directory, and place the ColdFusion folder and all of its contents into
+modules/staruml-generator/templates.
+
+Now fire up the StarUML application and create your class diagram.
+
+When you're done, go to the Tools menu and choose StarUML Generator.
+Check the box for ColdFusion and click Next.  Choose the directory
+where you want your generated CFCs to go, then click Next.  Finally,
+click the Generate button.  When it's done generating, click Finish.
+
+Your shiny new ColdFusion components can be found in the folder you 
+specified, along with StarUML-CFGen-Result.txt, which provides a 
+summary of what it did.  You'll also see StarUML-CFGen-Script.js, which 
+is an intermediate JavaScript file created by StarUML when it runs the
+generator. You can safely delete both of these files.
+
+TIPS
+
+* All instance variables, regardless of accessibility, are written to 
+  the variables.instance scope.  A getter and setter will be written 
+  for each one.  If you want the getter/setter to be private, mark the
+  variable as private in the class diagram, by putting a minus sign 
+  before the variable name.  If you want the getter/setter to be public, 
+  mark the variable as public in the class diagram, by putting a plus sign 
+  before the variable name.
+* On your class diagram, you can specify your methods to be public (+), 
+  private (-), or package (~), and the generated methods will have their 
+  accessibility set accordingly.
+* Be sure to add method return types in your diagram so that the generated
+  method can have the correct returntype attribute.
+* Create a constructor by adding an init() method to your class.  Arguments
+  to this method will be written to the variables.instance struct.
+* You can use the Documentation tab for a class to set the hint attribute
+  on the CFC.
+
+LIMITATIONS
+
+* Inheritance relationships are not generated, so you'll need to write the 
+  extends attribute yourself for now.
+* Interfaces are not generated.
+* init() arguments are blindly written to variables.instance.  You'll have 
+  to write additional code there if needed.
+* Classes all go into one folder -- you'll need to put them into packages.
+* You'll probably want to go back and fully qualify your references to classes.
+
+LEGAL
+
+See the LICENSE file for details.  Use StarUML and the ColdFusion generator 
+at your own risk, of course.
+
+AUTHOR
+
+Dave Leeds
+@djleeds
+http://www.hitthebits.com/
+

@@ -1,0 +1,123 @@
+<@SCRIPT 
+
+classesGenerated = 0;
+
+function _getAccess(code)
+{
+	var result = "unknown";
+	switch(code)
+	{
+		case 0: result = "public"; break;
+		case 1: result = "protected"; break;
+		case 2: result = "private"; break;
+		case 3: result = "package"; break;
+	}
+	return result;
+}
+
+function _capString(string)
+{
+	var result = string;
+	var firstLetter = result.substring(0, 1).toUpperCase();
+	var rest = result.substring(1, result.length);
+	result = firstLetter + rest;
+	return result;
+}
+
+function _convertType(theType)
+{
+	// Need to debug this!
+	var result = theType;
+	if(theType.indexOf("Array") > -1) result = "array";
+	if(theType.length == 0) result = "void";
+	return result;
+}
+
+function _getDefaultValue(type)
+{
+	var result = "\"\"";
+	if(type == "numeric") result = "0";
+	if(type == "boolean") result = "false";
+	if(type == "struct")  result = "structNew()";
+	if(type.indexOf("Array") > -1) result = "arrayNew(1)";
+	return result;
+}
+@>
+
+<@REPEAT {R}::Design Model;UMLClass;;@>
+<@SCRIPT fileBegin(getTarget()+"\\"+current().Name+".cfc"); @>
+<cfcomponent displayname="<@DISPLAY ;current().Name@>" output="false" hint="<@DISPLAY ;current().Documentation@>">
+
+<@REPEAT ;UMLAttribute;;@>
+	<cfset variables.instance.<@DISPLAY ;current().Name@> = <@DISPLAY ;_getDefaultValue(current().TypeExpression)@> />
+<@ENDREPEAT>
+<@REPEAT ;UMLOperation;;@>
+<@IF current().Name == "init"@>
+<@REPEAT ;;Parameters;current().DirectionKind==3@>
+<@SCRIPT returnType = current().TypeExpression; @>
+<@ENDREPEAT@>
+
+	<cffunction name="<@DISPLAY ;current().Name@>" access="<@DISPLAY ;_getAccess(current().Visibility)@>" output="false" returntype="<@=_convertType(returnType)@>">
+<@REPEAT ;;Parameters;@>
+<@IF current().DirectionKind != 3@>
+		<cfargument name="<@=current().Name@>" type="<@=current().TypeExpression@>" required="true" />
+<@ENDIF@>
+<@ENDREPEAT@>
+<@REPEAT ;;Parameters;@>
+<@IF current().DirectionKind != 3@>
+		<cfset variables.instance.<@=current().Name@> = arguments.<@=current().Name@> />
+<@ENDIF@>
+<@ENDREPEAT@>
+		<cfreturn this />
+	</cffunction>
+<@ENDIF@>
+<@ENDREPEAT@>
+
+	<!--- Getters and Setters --->
+
+<@REPEAT ;UMLAttribute;;@>
+	<cffunction name="get<@DISPLAY ;_capString(current().Name)@>" access="<@DISPLAY ;_getAccess(current().Visibility)@>" output="false" returntype="<@DISPLAY ;_convertType(current().TypeExpression)@>">
+		<cfreturn variables.instance.<@DISPLAY ;current().Name@> />
+	</cffunction>
+
+	<cffunction name="set<@DISPLAY ;_capString(current().Name)@>" access="<@DISPLAY ;_getAccess(current().Visibility)@>" output="false" returntype="void">
+		<cfargument name="<@DISPLAY ;current().Name@>" type="<@DISPLAY ;_convertType(current().TypeExpression)@>" required="true" />
+		<cfset variables.instance.<@DISPLAY ;current().Name@> = arguments.<@DISPLAY ;current().Name@> />
+	</cffunction>
+
+<@ENDREPEAT>
+	<!--- Methods --->
+
+<@REPEAT ;UMLOperation;;@>
+<@IF current().Name != "init"@>
+<@SCRIPT returnType = ""@>
+<@REPEAT ;;Parameters;current().DirectionKind==3@>
+<@SCRIPT returnType = current().TypeExpression; @>
+<@ENDREPEAT@>
+	<cffunction name="<@DISPLAY ;current().Name@>" access="<@DISPLAY ;_getAccess(current().Visibility)@>" output="false" returntype="<@=_convertType(returnType)@>">
+<@REPEAT ;;Parameters;@>
+<@IF current().DirectionKind != 3@>
+		<cfargument name="<@=current().Name@>" type="<@=_convertType(current().TypeExpression)@>" required="true" />
+<@ENDIF@>
+<@ENDREPEAT@>
+		<cfset var result = "" />
+		<cfthrow type="NotImplemented" message="This method needs to be implemented." />
+		<cfreturn result />
+	</cffunction>
+
+<@ENDIF@>
+<@ENDREPEAT@>
+</cfcomponent>
+<@SCRIPT fileEnd(); classesGenerated++; @>
+<@ENDREPEAT@>
+
+Finished generating <@=classesGenerated@> CFC files.
+
+Remember:
+
+* Inheritance relationships are not generated, so you'll need to write the extends attribute yourself for now.
+* Interfaces are not generated.
+* init() arguments are blindly written to variables.instance.  You'll have to write additional code there if needed.
+* Classes all go into one folder -- you'll need to put them into packages.
+* You'll probably want to go back and fully qualify your references to classes.
+
